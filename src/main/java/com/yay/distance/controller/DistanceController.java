@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,12 +54,13 @@ public class DistanceController {
 		return result;
 	}
 	
-	@RequestMapping(value="populateDistanceTable",method=RequestMethod.GET)
+	@RequestMapping(value="populateDistanceTable/{clearAndLoadDistanceData}",method=RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
-	@ApiOperation(value="Populates distance table",notes="Deletes all rows from distance table and populate the table with latest attractions available.")
-	public void populateDistanceTable(){
+	@ApiOperation(value="Populates distance table",notes="Deletes all rows from distance table when clearAndLoadDistanceData is set to true"
+			+ " and populate the table with latest attractions available.")
+	public void populateDistanceTable(@PathVariable boolean clearAndLoadDistanceData){
 		long start = System.currentTimeMillis();
-		distanceBusinessManager.refreshDistanceTable();
+		distanceBusinessManager.refreshDistanceTable(clearAndLoadDistanceData);
 		long diff = System.currentTimeMillis() - start;
 		log.info("Time taken for populateDistanceTable call:"+(diff/1000)+"s "+(diff % 1000)+"ms");
 	}

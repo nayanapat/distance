@@ -86,5 +86,13 @@ public class DistanceDao2 {
 		jdbcTemplate.batchUpdate(sql,dataset , dataTypes);
 		
 	}
+	
+	public boolean distanceNotCalculated(Integer source,Integer destination,Integer reach) {
+		String sql="select count(*) from apollo2.t_distance where "
+				+ "source_location_id=? and destination_location_id=? and reach_id=?";
+		int count = jdbcTemplate.queryForObject(
+                sql, new Object[] { source,destination,reach }, Integer.class);
+		return count==0;
+	}
 
 }

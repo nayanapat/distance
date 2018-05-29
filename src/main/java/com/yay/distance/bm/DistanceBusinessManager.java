@@ -126,9 +126,11 @@ public class DistanceBusinessManager {
 	}
 
 	@Transactional
-	public void refreshDistanceTable() {
-		int noOfDeletedRows = distanceDao.clearDistanceTable();
-		log.info("# of rows deleted from distance table:" + noOfDeletedRows);
+	public void refreshDistanceTable(boolean clearAndLoadDistanceData) {
+		if (clearAndLoadDistanceData) {
+			int noOfDeletedRows = distanceDao.clearDistanceTable();
+			log.info("# of rows deleted from distance table:" + noOfDeletedRows);
+		}
 		Map<Integer, String> transportMap = distanceDao.getTransportTypes();
 		List<GeoLocation> attractions = distanceDao.getAllLocations();
 		for (int i = 0; i < attractions.size(); i++) {
@@ -141,7 +143,8 @@ public class DistanceBusinessManager {
 				reqBean.setSource(sourceAttraction.getLocation());
 				reqBean.setDestination(destinationAttraction.getLocation());
 				for (Integer reachId : sourceAttraction.getReaches()) {
-					if (destinationAttraction.getReaches().contains(reachId)) {
+					if (destinationAttraction.getReaches().contains(reachId)
+							&& distanceDao.distanceNotCalculated(sourceAttraction.getId(), destinationAttraction.getId(), reachId)) {
 						reqBean.setTravellingBy(transportMap.get(reachId));
 						DistanceResponseBean response = getDistance(reqBean);
 						if (response.getErrorMessage() == null && response.getRows().size() > 0
